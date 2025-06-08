@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Download, FileText, Share2, Loader2 } from "lucide-react"
 import { generatePDF } from "@/lib/pdf-export"
 import { toast } from "@/components/ui/use-toast"
+  import html2canvas from "html2canvas"
+import jsPDF from "jspdf"
 
 interface ExportOptionsProps {
   resumeId: string
@@ -17,40 +19,70 @@ interface ExportOptionsProps {
 export function ExportOptions({ resumeId, resumeName, resumeData, templateId = "modern" }: ExportOptionsProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
-  const handlePDFExport = async () => {
-    if (!resumeData) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Resume data not available for export.",
-      })
-      return
-    }
 
-    setLoading("pdf")
 
-    try {
-      const result = await generatePDF(resumeData, templateId)
+const handlePDFExport = async () => {
+  setLoading("pdf")
 
-      if (result.success) {
-        toast({
-          title: "PDF Downloaded",
-          description: "Your resume has been downloaded as PDF successfully.",
-        })
-      } else {
-        throw new Error(result.error)
-      }
-    } catch (error) {
-      console.error("PDF export error:", error)
-      toast({
-        variant: "destructive",
-        title: "Export Failed",
-        description: "Failed to generate PDF. Please try again.",
-      })
-    } finally {
-      setLoading(null)
-    }
+  const resumeElement = document.getElementById("resume-preview")
+  if (!resumeElement) {
+    toast({
+      variant: "destructive",
+      title: "Export Failed",
+      description: "Resume preview not found.",
+    })
+    setLoading(null)
+    return
   }
+
+  try {
+    const canvas = await html2canvas(resumeElement, {
+      scale: 2, // for better quality
+    })
+    const imgData = canvas.toDataURL("image/png")
+    const pdf = new jsPDF("p", "mm", "a4")
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+
+    const imgProps = pdf.getImageProperties(imgData)
+    const pdfWidth = pageWidth
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+    let position = 0
+
+    if (pdfHeight < pageHeight) {
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight)
+    } else {
+      // handle multi-page content
+      let heightLeft = pdfHeight
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight)
+        heightLeft -= pageHeight
+        if (heightLeft > 0) {
+          pdf.addPage()
+          position = 0 - (pdfHeight - heightLeft)
+        }
+      }
+    }
+
+    pdf.save(`${resumeName || "resume"}.pdf`)
+
+    toast({
+      title: "PDF Downloaded",
+      description: "Your resume has been downloaded successfully.",
+    })
+  } catch (error) {
+    console.error("PDF export error:", error)
+    toast({
+      variant: "destructive",
+      title: "Export Failed",
+      description: "Failed to generate PDF. Please try again.",
+    })
+  } finally {
+    setLoading(null)
+  }
+}
+
 
   const handleWordExport = async () => {
     setLoading("word")

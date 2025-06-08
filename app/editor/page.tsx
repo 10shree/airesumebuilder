@@ -266,47 +266,54 @@ export default function ResumeEditor() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/dashboard">
-                <ArrowLeft className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">ResumeAI Pro</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAI(!showAI)}
-              className="bg-blue-950/30 hover:bg-blue-900/40 text-blue-400 border-blue-800"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              {showAI ? "Hide AI" : "AI Assistant"}
-            </Button>
-            <Button variant="outline" size="sm">
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
-            </Button>
-            <ExportOptions
-              resumeId="1"
-              resumeName="Software Engineer Resume"
-              resumeData={resumeData}
-              templateId={selectedTemplate}
-            />
-            <Button size="sm" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {saving ? "Saving..." : "Save"}
-            </Button>
-          </div>
+  <div className="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap">
+    {/* Left: Logo + Back */}
+    <div className="flex items-center gap-4 flex-1 min-w-0">
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/dashboard">
+          <ArrowLeft className="w-4 h-4" />
+        </Link>
+      </Button>
+      <Link href="/" className="flex items-center gap-2 min-w-0 overflow-hidden">
+        <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <FileText className="w-5 h-5 text-white" />
         </div>
-      </header>
+        <span className="text-lg font-bold truncate hidden sm:inline">ResumeAI Pro</span>
+      </Link>
+    </div>
+
+    {/* Right: Actions */}
+    <div className="flex items-center gap-2 flex-wrap justify-end sm:flex-nowrap">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setShowAI(!showAI)}
+        className="bg-blue-950/30 hover:bg-blue-900/40 text-blue-400 border-blue-800"
+      >
+        <Sparkles className="w-4 h-4 mr-2" />
+        <span className="hidden sm:inline">{showAI ? "Hide AI" : "AI Assistant"}</span>
+        <span className="sm:hidden">AI</span>
+      </Button>
+
+      <Button variant="outline" size="sm">
+        <Eye className="w-4 h-4 mr-2" />
+        <span className="hidden sm:inline">Preview</span>
+      </Button>
+
+      <ExportOptions
+        resumeId="1"
+        resumeName="Software Engineer Resume"
+        resumeData={resumeData}
+        templateId={selectedTemplate}
+      />
+
+      <Button size="sm" onClick={handleSave} disabled={saving}>
+        {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+        <span className="hidden sm:inline">{saving ? "Saving..." : "Save"}</span>
+      </Button>
+    </div>
+  </div>
+</header>
 
       <div className="container mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-12 gap-8">
